@@ -129,41 +129,7 @@
               </div>
             </div>
           </div>
-          <div class="single_post_content">
-            <h2><span>Photography</span></h2>
-            <ul class="photograph_nav  wow fadeInDown">
-              <li>
-                <div class="photo_grid">
-                  <figure class="effect-layla"> <a class="fancybox-buttons" data-fancybox-group="button" href="images/photograph_img2.jpg" title="Photography Ttile 1"> <img src="{% static 'images/photograph_img2.jpg' %}" alt=""/></a> </figure>
-                </div>
-              </li>
-              <li>
-                <div class="photo_grid">
-                  <figure class="effect-layla"> <a class="fancybox-buttons" data-fancybox-group="button" href="images/photograph_img3.jpg" title="Photography Ttile 2"> <img src="{% static 'images/photograph_img3.jpg' %}" alt=""/> </a> </figure>
-                </div>
-              </li>
-              <li>
-                <div class="photo_grid">
-                  <figure class="effect-layla"> <a class="fancybox-buttons" data-fancybox-group="button" href="images/photograph_img4.jpg" title="Photography Ttile 3"> <img src="{% static 'images/photograph_img4.jpg' %}" alt=""/> </a> </figure>
-                </div>
-              </li>
-              <li>
-                <div class="photo_grid">
-                  <figure class="effect-layla"> <a class="fancybox-buttons" data-fancybox-group="button" href="images/photograph_img4.jpg" title="Photography Ttile 4"> <img src="{% static 'images/photograph_img4.jpg' %}" alt=""/> </a> </figure>
-                </div>
-              </li>
-              <li>
-                <div class="photo_grid">
-                  <figure class="effect-layla"> <a class="fancybox-buttons" data-fancybox-group="button" href="images/photograph_img2.jpg" title="Photography Ttile 5"> <img src="{% static 'images/photograph_img2.jpg' %}" alt=""/> </a> </figure>
-                </div>
-              </li>
-              <li>
-                <div class="photo_grid">
-                  <figure class="effect-layla"> <a class="fancybox-buttons" data-fancybox-group="button" href="images/photograph_img3.jpg" title="Photography Ttile 6"> <img src="{% static 'images/photograph_img3.jpg' %}" alt=""/> </a> </figure>
-                </div>
-              </li>
-            </ul>
-          </div>
+          
           <div class="single_post_content">
             <h2><span>Sport</span></h2>
             <div class="single_post_content_left">
@@ -172,7 +138,7 @@
                   {% if forloop.first %}
                 <li>
                   <figure class="bsbig_fig  wow fadeInDown"> <a class="featured_img" href="{{ news.get_absolute_url }}"> <img src="{{ sport.image.url }}" alt=""> <span class="overlay"></span> </a>
-                    <figcaption> <a href="{{ news.get_absolute_url }}">{{ sport.title }}}</a> </figcaption>
+                    <figcaption> <a href="{{ news.get_absolute_url }}">{{ sport.title }}</a> </figcaption>
                     <p>{{ sport.body | truncatewords:15 }}</p>
                   </figure>
                 </li>

@@ -1,13 +1,54 @@
 {% extends 'news/base.html' %}
 {% load static %}
 
-{% block title %} {{ news.title }} {% endblock title %}
+{% block title %}{{ news.title }}{% endblock title %}
 
 {% block content %}
 
-    <h2>{{ news.title }}</h2>
-    <h5>{{ news.publish_time }}</h5>
-    <img src="{{ news.image.url }}">
-    <p>{{ news.body }}</p>
-
-{% endblock content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 mx-auto my-4">
+            <h2 class="text-center">{{ news.title }}</h2>
+            <h5 class="text-center">{{ news.publish_time }}</h5>
+            <img class="mx-auto d-block" src="{{ news.image.url }}" alt="{{ news.title }}">
+            <p class="my-4">{{ news.body }}</p>
+            {% if user.is_authenticated and request.user.is_superuser %}
+            <div class="card-footer text-center">
+                <a href="{% url 'news_update' news.slug %}" class="btn btn-secondary mx-2">Tahrirlash</a>
+                <a href="{% url 'news_delete' news.slug %}" class="btn btn-danger mx-2">O'chirish</a>
+            </div>
+            {% endif %}
+    
+            {% for comment in comments %}
+            <div class="card my-4">
+                <div class="card-body">
+                    <p class="font-weight-bold mb-0">{{ comment.user }}</p>
+                    <p class="text-muted font-weight-normal">{{ comment.created_time }}</p>
+                    <hr>
+                    <p>{{ comment.body | linebreaks }}</p>
+                </div>
+            </div>
+            {% endfor %}
+            {% if user.is_authenticated %}
+            <div class="card my-4">
+                <div class="card-body">
+                    <h3 class="card-title">Izoh qoldirish</h3>
+                    <form method="POST" class="my-3">{% csrf_token %}
+                        {{ comment_form.as_p }}
+                        <button type="submit" class="btn btn-primary btn-lg">Yuborish</button>
+                    </form>
+                </div>
+            </div>
+            {% else %}
+            <div class="card-body">
+                <p class="text-danger font-weight-bold mb-0">Faqatgina ro'yxatdan o'tgan foydalanuvchilar izoh qoldirishi mumkin</p>
+                <p class="mt-3">
+                    <a href="{% url 'user_register' %}" class="btn btn-primary mr-2" style="background-color: #007bff; border-color: #007bff;">Ro'yxatdan o'tish</a>
+                    <a href="{% url 'login' %}" class="btn btn-secondary" style="background-color: #6c757d; border-color: #6c757d;">Saytga kirish</a>
+                </p>
+            </div>            
+        </div>
+    </div>
+</div>
+            {% endif %}
+{% endblock content %}    

@@ -1,0 +1,32 @@
+{% extends 'news/base.html' %}
+
+{% block title %} Admin sahifasi {% endblock title %}
+
+{% block content %}
+  <div class="container">
+    <h1 class="mt-5">Admin sahifasi</h1>
+
+    <table class="table table-bordered table-responsive table-striped mt-4">
+      <caption class="font-weight-bold">Barcha adminlar</caption>
+      <thead class="bg-light">
+        <tr>
+          <th scope="col">Ism</th>
+          <th scope="col">Familiya</th>
+          <th scope="col">Email manzil</th>
+          <th scope="col">Telefon raqami</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for admin in admin_users %}
+          <tr>
+            <td>{{ admin.first_name }}</td>
+            <td>{{ admin.last_name }}</td>
+            <td>{{ admin.email }}</td>
+            <td>{{ admin.phone_number }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <h2><a href="{% url 'news_create' %}" class="text-primary">Yangilik qo'shish</a></h2>
+{% endblock content %}

@@ -1,26 +1,30 @@
 {% extends 'news/base.html' %}
 {% load static %}
+{% load cache %}
+
+{% cache 300 mahalliy_yangiliklar %}
 
 {% block title %} Mahalliy xabarlar {% endblock title %}
 
-
 {% block content %}
-
-
-{% for news in local_news_page %}
-
-<div class='container'>
-    <div class='row'>
-        <div class='col-sm-8'>
-            <a href="{{ news.get_absolute_url }}">
-                <img src="{{ news.image.url }}" alt="{{ news.title }}" sytle="width:50%">
-                <h2>{{ news.title }}</h2>
-            </a>
+<div class="container">
+  <div class="row">
+    {% for news in mahalliy_yangiliklar %}
+      <div class="col-md-4">
+        <div class="card mb-4 box-shadow">
+          <a href="{{ news.get_absolute_url }}">
+            <img class="card-img-top rounded-circle" src="{{ news.image.url }}" alt="{{ news.title }}" style="max-width:100%; height:auto;">
+          </a>
+          <div class="card-body">
+            <h5 class="card-title" style="font-size:1.2rem;">{{ news.title }}</h5>
+            <p class="card-text" style="font-size:0.9rem;">{{ news.description }}</p>
+          </div>
         </div>
-    </div>
+      </div>
+    {% endfor %}
+  </div>
 </div>
-
-{% endfor %}
 
 {% endblock content %}
 
+{% endcache %}

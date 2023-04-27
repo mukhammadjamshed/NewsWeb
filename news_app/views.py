@@ -1,8 +1,18 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
-from django.shortcuts import render, get_object_or_404
-from django.views.generic import TemplateView, ListView
-from .models import News, Category
-from .forms import ContactForm
+from django.shortcuts import get_object_or_404, render
+from django.urls import reverse_lazy
+from django.views.generic import (CreateView, DeleteView, ListView,
+                                  TemplateView, UpdateView)
+from .forms import ContactForm, CommentForm
+from .models import Category, News
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.mixins import LoginRequiredMixin
+from news_project.custom_permissions import OnlyLoggedSuperUser
+from django.contrib.auth.models import User
+from django.views.generic import DetailView
+
+# your view classes here
 
 
 def news_list(request):
@@ -14,15 +24,41 @@ def news_list(request):
     return render(request, "news/news_list.html", context)
 
 
-def news_detail(request, news):
-    news = get_object_or_404(News, slug=news, status=News.Status.Published)
-    context = {
-        "news": news
-    }
+class NewsDetailView(DetailView):
+    model = News
+    template_name = 'news/news_detail.html'
+    context_object_name = 'news'
+    slug_url_kwarg = 'news'
+    queryset = News.objects.filter(status=News.Status.Published).select_related('category')
 
-    return render(request, 'news/news_detail.html', context)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        comments = self.object.comments.filter(active=True)
+        comment_form = CommentForm()
+        context['comments'] = comments
+        context['comment_form'] = comment_form
+        return context
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        comments = self.object.comments.filter(active=True)
+        comment_form = CommentForm(data=request.POST)
+        if comment_form.is_valid():
+            new_comment = comment_form.save(commit=False)
+            new_comment.news = self.object
+            new_comment.user = request.user
+            new_comment.save()
+            comment_form = CommentForm()
+        else:
+            new_comment = None
+        context = self.get_context_data()
+        context['new_comment'] = new_comment
+        context['comments'] = comments
+        context['comment_form'] = comment_form
+        return self.render_to_response(context)
 
 
+@login_required
 def homePageView(request):
     categories = Category.objects.all()
     news_list = News.objects.all().order_by("-publish_time")[:5]
@@ -78,6 +114,7 @@ class ContactPageView(TemplateView):
         form = ContactForm(request.POST)
         if request.method == "POST" and form.is_valid():
             form.save()
+
             return HttpResponse("<h2> Thank for your attention</h2>")
         context = {
             "form": form
@@ -91,18 +128,17 @@ class LocalNewsView(ListView):
     context_object_name = 'mahalliy_yangiliklar'
 
     def get_queryset(self):
-        news = self.model.published.all().filter(category__name="Mahalliy")
-        return News
+        news = News.objects.all().filter(category__name="Mahalliy")
+        return news
 
 
 class ForeignNewsView(ListView):
-    model = News
     template_name = 'news/xorij.html'
     context_object_name = 'xorij_yangiliklari'
 
     def get_queryset(self):
-        news = self.model.published.all().filter(category__name="Xorij")
-        return News
+        news = News.objects.all().filter(category__name="Xorij")
+        return news
 
 
 class TechnologyNewsView(ListView):
@@ -111,8 +147,8 @@ class TechnologyNewsView(ListView):
     context_object_name = 'texnologik_yangiliklar'
 
     def get_queryset(self):
-        news = self.model.published.all().filter(category__name="Texnologiya")
-        return News
+        news = News.objects.all().filter(category__name="Texnologiya")
+        return news
 
 
 class SportNewsView(ListView):
@@ -121,5 +157,38 @@ class SportNewsView(ListView):
     context_object_name = 'sport_yangiliklari'
 
     def get_queryset(self):
-        news = self.model.published.all().filter(category__name="Sport")
-        return News
+        news = News.objects.all().filter(category__name="Sport")
+        return news
+
+
+class NewsUpdateView(OnlyLoggedSuperUser, UpdateView):
+    model = News
+    fields = ('title', 'body', 'image', 'category', 'status')
+    template_name = 'crud/news_edit.html'
+
+
+class NewsDeleteView(OnlyLoggedSuperUser, DeleteView):
+    model = News
+    template_name = 'crud/news_delete.html'
+    success_url = reverse_lazy('home_page')
+
+class NewsCreateView(OnlyLoggedSuperUser, CreateView):
+    model = News
+    template_name = 'crud/news_create.html'
+    fields = ('title', 'slug', 'body', 'image', 'category', 'status')
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return self.handle_no_permission()
+        return super().dispatch(request, *args, **kwargs)
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser == True)
+def admin_page_view(request):
+    admin_users = User.objects.filter(is_superuser=True)
+
+    context = {
+        'admin_users': admin_users
+    }
+
+    return render(request, 'pages/admin_page.html', context)
